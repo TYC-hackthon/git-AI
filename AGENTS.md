@@ -36,9 +36,10 @@
 
 當使用者的任務涉及 `/backend` 時，請切換至此模式：
 
-- 技術棧：Python Flask, SQLAlchemy。
+- 技術棧：Python Flask, SQLAlchemy, Ollama (Local LLM)。
 - 核心資料結構：
-  - `MessageNode` 表：包含 `id`, `parent_id` (指向上一句對話), `role`, `content`。
+  - `MessageNode` 表：包含 `id`, `parent_id` (指向上一句對話), `role` (user/assistant), `content`。
 - 核心任務：
-  1. 上下文重組演算法 (Context Rebuilder)：接收到特定的 `node_id` 時，必須能透過資料庫查詢，向上追溯所有的 `parent_id` 直到根節點，將收集到的節點反轉順序，組合出標準的線性 `messages` 陣列。
-  2. 分支建立 (Commit)：將前端傳入的新訊息存入資料庫，並將其 `parent_id` 指向前端指定的節點 ID。
+  1. 上下文重組演算法 (Context Rebuilder)：接收到特定的 `node_id` 時，透過資料庫遞迴向上追溯所有的 `parent_id` 直到根節點。將收集到的節點反轉順序，組合出標準的 `[{"role": "user", "content": "..."}, ...]` 陣列。
+  2. Ollama 串接：將重組後的上下文陣列傳送給 Ollama 服務 (可使用官方 `ollama-python` 套件或直接發送 HTTP 請求至 `localhost:11434`)。
+  3. 分支建立 (Commit)：將使用者的輸入與 Ollama 的回覆依序存入資料庫，確保新的 `parent_id` 鏈結正確。
