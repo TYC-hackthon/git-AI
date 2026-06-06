@@ -26,7 +26,7 @@ jobs:
       - uses: actions/setup-node@v3
 
       - name: Checkout recursively
-        run: git submodule update --init && mv Frontend/* .
+        run: git submodule update --init && mv Frontend/* . && echo VITE_OLLAMA_BASE_URL=https://sheep.ysh.xx.kg > .env
 
       # Runs a single command using the runners shell
       - name: install dependencies
