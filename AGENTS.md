@@ -1,0 +1,44 @@
+# 專案總覽：Git-like AI 聊天室
+
+本專案旨在解決 LLM 上下文污染問題。透過樹狀結構 (Tree/DAG) 管理對話節點，允許使用者回到過去的節點開啟新分支，並精準控制傳遞給模型的上下文。
+
+專案架構：
+
+- Root (此目錄)：全局管理與跨端規格。
+- /frontend (Submodule)：Vue 3 前端介面與狀態管理。
+- /backend (Submodule)：Flask 後端與 SQLAlchemy 資料庫。
+
+# 絕對禁令 (Global Constraints)
+
+1. 嚴格禁止 Emoji：在任何產出的程式碼 (Python, JS, TS, Vue 等) 與 Git Commit Message 中，絕對不增添任何 emoji。
+2. 零臆測原則：若 API 規格、欄位名稱或路徑資訊不足，不准根據慣例瞎猜，必須直接詢問使用者以確認細節。
+
+# 跨端協作守則 (Execution Protocol)
+
+作為全端 AI 助手，你擁有全局讀取權限，但必須嚴格遵守「單點寫入」原則：
+
+1. 讀取 (Read-Only) 許可：鼓勵你跨目錄讀取另一個 Submodule 的程式碼（例如寫後端時去讀前端的 API 呼叫結構），以確保參數一致性。
+2. 寫入 (Write) 隔離：除非使用者明確要求「請同時修改前後端」，否則單次任務中，僅允許修改目標 Submodule 的程式碼，絕對不可越界修改另一端的檔案。
+
+---
+
+# [Mode: Frontend] 前端開發規範
+
+當使用者的任務涉及 `/frontend` 時，請切換至此模式：
+
+- 技術棧：Vue 3 (Composition API), Vite。
+- 核心任務：
+  1. 對話樹 (Tree) 視覺化：使用輕量級方式呈現節點與分支狀態。
+  2. 狀態管理：精準維護 `currentNodeId`，點擊圖表節點時觸發狀態更新，並重新請求該節點的完整線性上下文。
+  3. API 串接：發送新訊息時，必須在 Payload 中夾帶 `parent_id` (即目前的 `currentNodeId`)。
+
+# [Mode: Backend] 後端開發規範
+
+當使用者的任務涉及 `/backend` 時，請切換至此模式：
+
+- 技術棧：Python Flask, SQLAlchemy。
+- 核心資料結構：
+  - `MessageNode` 表：包含 `id`, `parent_id` (指向上一句對話), `role`, `content`。
+- 核心任務：
+  1. 上下文重組演算法 (Context Rebuilder)：接收到特定的 `node_id` 時，必須能透過資料庫查詢，向上追溯所有的 `parent_id` 直到根節點，將收集到的節點反轉順序，組合出標準的線性 `messages` 陣列。
+  2. 分支建立 (Commit)：將前端傳入的新訊息存入資料庫，並將其 `parent_id` 指向前端指定的節點 ID。
