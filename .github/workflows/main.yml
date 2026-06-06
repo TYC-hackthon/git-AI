@@ -25,6 +25,9 @@ jobs:
       # install node.js
       - uses: actions/setup-node@v3
 
+      - name: Checkout recursively
+        run: git submodule update --init
+
       # Runs a single command using the runners shell
       - name: install dependencies
         run: cd Frontend && npm install
