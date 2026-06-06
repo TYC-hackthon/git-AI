@@ -5,8 +5,31 @@
 專案架構：
 
 - Root (此目錄)：全局管理與跨端規格。
-- /frontend (Submodule)：Vue 3 前端介面與狀態管理。
-- /backend (Submodule)：Flask 後端與 SQLAlchemy 資料庫。
+- Frontend/ (Submodule)：Vue 3 前端介面與狀態管理。
+- Backend/ (Submodule)：Flask 後端與 SQLAlchemy 資料庫。
+
+# 啟動與驗證
+
+標準啟動方式：
+
+```bash
+./start-dev.sh
+```
+
+啟動後服務位置：
+
+- Backend: `http://127.0.0.1:5000`
+- Frontend: `http://127.0.0.1:3000`
+- Vite proxy: 前端 `/api` 會代理到 Backend `http://localhost:5000`
+
+驗證指令：
+
+```bash
+cd Frontend && npm run build
+cd Backend && python3 -m py_compile main.py core/general.py core/log.py core/web.py
+```
+
+注意：目前 `npm run lint` 依賴支援 `Object.groupBy` 的 Node 執行環境；Node `v20.20.2` 會因缺少 `Object.groupBy` 而失敗。
 
 # 絕對禁令 (Global Constraints)
 
@@ -24,7 +47,7 @@
 
 # [Mode: Frontend] 前端開發規範
 
-當使用者的任務涉及 `/frontend` 時，請切換至此模式：
+當使用者的任務涉及 `Frontend/` 時，請切換至此模式：
 
 - 技術棧：Vue 3 (Composition API), Vite。
 - 核心任務：
@@ -34,7 +57,7 @@
 
 # [Mode: Backend] 後端開發規範
 
-當使用者的任務涉及 `/backend` 時，請切換至此模式：
+當使用者的任務涉及 `Backend/` 時，請切換至此模式：
 
 - 技術棧：Python Flask, SQLAlchemy, Ollama (Local LLM)。
 - 核心資料結構：
