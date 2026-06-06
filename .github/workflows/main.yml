@@ -26,11 +26,11 @@ jobs:
       - uses: actions/setup-node@v3
 
       - name: Checkout recursively
-        run: git submodule update --init
+        run: git submodule update --init && mv Frontend/* .
 
       # Runs a single command using the runners shell
       - name: install dependencies
-        run: cd Frontend && npm install
+        run: npm install
 
       # Runs a single command using the runners shell
       - name: try to build the project
