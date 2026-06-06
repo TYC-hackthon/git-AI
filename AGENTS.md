@@ -31,6 +31,8 @@ cd Backend && python3 -m py_compile main.py core/general.py core/log.py core/web
 
 注意：目前 `npm run lint` 依賴支援 `Object.groupBy` 的 Node 執行環境；Node `v20.20.2` 會因缺少 `Object.groupBy` 而失敗。
 
+### 不需執行任何前端環境測試的指令，修改程式後用戶會自己執行
+
 ## 絕對禁令 (Global Constraints)
 
 1. 嚴格禁止 Emoji：在任何產出的程式碼 (Python, JS, TS, Vue 等) 與 Git Commit Message 中，絕對不增添任何 emoji。
@@ -69,7 +71,7 @@ cd Backend && python3 -m py_compile main.py core/general.py core/log.py core/web
 
 ## 版本控制規範
 
-本專案使用 ***submodule*** 形式開發，再更新 ***Frontend***, ***Backend*** 任一後，請回到 ***Root Repository*** ***commit*** 並 ***push*** ，正式網頁會以 ***Root Repository*** 所看到的版本為主。 因此請注意 ***Frontend*** 及 ***Backend*** 版本的同步。
+本專案使用 **_submodule_** 形式開發，再更新 **_Frontend_**, **_Backend_** 任一後，請回到 **_Root Repository_** **_commit_** 並 **_push_** ，正式網頁會以 **_Root Repository_** 所看到的版本為主。 因此請注意 **_Frontend_** 及 **_Backend_** 版本的同步。
 
 ### Pull
 
@@ -82,7 +84,7 @@ git submodule update
 
 ### Push
 
-當提交 ***commit*** 時，請執行
+當提交 **_commit_** 時，請執行
 
 ```bash
 # You're now in Frontend / Backend directory
