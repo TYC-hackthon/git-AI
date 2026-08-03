@@ -4,3 +4,6 @@
 [submodule "Frontend"]
 	path = Frontend
 	url = https://github.com/TYC-hackthon/Frontend
+[submodule "Experiment"]
+	path = Experiment
+	url = https://github.com/TYC-hackthon/Experiment
