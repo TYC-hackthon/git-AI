@@ -1,0 +1,37 @@
+﻿id,split,question_number,question,choice_A,choice_B,choice_C,choice_D,answer,answer_text,requires_line
+sat-practice_2-question_22,train,22,The author of Passage 1 indicates which of the following about the use of screen-based technologies?,It should be thoroughly studied.,It makes the brain increasingly rigid.,It has some positive effects.,"It should be widely encouraged.
+
+Answer:",C,It has some positive effects.,False
+sat-practice_2-question_24,train,24,The author of Passage 1 indicates that becoming adept at using the Internet can,make people complacent about their health.,undermine the ability to think deeply.,increase people’s social contacts.,"improve people’s self-confidence.
+
+Answer:",B,undermine the ability to think deeply.,False
+sat-practice_2-question_25,train,25,"As used in line 40, “plastic” most nearly means",creative.,artificial.,malleable.,"sculptural.
+
+Answer:",C,malleable.,True
+sat-practice_2-question_26,train,26,The author of Passage 2 refers to the novel War and Peace primarily to suggest that Woody Allen,did not like Tolstoy’s writing style.,could not comprehend the novel by speed-reading it.,had become quite skilled at multitasking.,"regretted having read such a long novel.
+
+Answer:",B,could not comprehend the novel by speed-reading it.,False
+sat-practice_2-question_27,train,27,"According to the author of Passage 2, what do novelists and scientists have in common?",They take risks when they pursue knowledge.,They are eager to improve their minds.,They are curious about other subjects.,"They become absorbed in their own fields.
+
+Answer:",D,"They become absorbed in their own fields.
+
+Answer:",False
+sat-practice_2-question_28,train,28,The analogy in the final sentence of Passage 2 has primarily which effect?,It uses ornate language to illustrate a difficult concept.,It employs humor to soften a severe opinion of human behavior.,It alludes to the past to evoke a nostalgic response.,"It criticizes the view of a particular group.
+
+Answer:",D,"It criticizes the view of a particular group.
+
+Answer:",False
+sat-practice_2-question_29,train,29,The main purpose of each passage is to,compare brain function in those who play games on the Internet and those who browse on it.,report on the problem-solving skills of individuals with varying levels of Internet experience.,take a position on increasing financial support for studies related to technology and intelligence.,"make an argument about the effects of electronic media use on the brain.
+
+Answer:",D,"make an argument about the effects of electronic media use on the brain.
+
+Answer:",False
+sat-practice_2-question_30,train,30,Which choice best describes the relationship between the two passages?,Passage 2 relates first-hand experiences that contrast with the clinical approach in Passage 1.,Passage 2 critiques the conclusions drawn from the research discussed in Passage 1.,Passage 2 takes a high-level view of a result that Passage 1 examines in depth.,"Passage 2 predicts the negative reactions that the findings discussed in Passage 1 might produce.
+
+Answer:",B,Passage 2 critiques the conclusions drawn from the research discussed in Passage 1.,False
+sat-practice_2-question_31,train,31,On which of the following points would the authors of both passages most likely agree?,Computer-savvy children tend to demonstrate better hand-eye coordination than do their parents.,Those who criticize consumers of electronic media tend to overreact in their criticism.,Improved visual-spatial skills do not generalize to improved skills in other areas.,"Internet users are unlikely to prefer reading onscreen text to reading actual books.
+
+Answer:",C,Improved visual-spatial skills do not generalize to improved skills in other areas.,False
+sat-practice_2-question_32,train,32,"Which choice provides the best evidence that the author of Passage 2 would agree to some extent with the claim attributed to Michael Merzenich in lines 41-43, Passage 1?",Lines 51-53 (“Critics... brain”),Lines 54-56 (“Yes... changes”),Lines 57-59 (“But... experience”),"Lines 83-84 (“Media... consumes”)
+
+Answer:",B,Lines 54-56 (“Yes... changes”),True
