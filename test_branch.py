@@ -29,7 +29,7 @@ def append_to_csv(record):
         writer.writerow(record)
         f.flush()
 
-def send_chat(message, parent_id=None, system_prompt=None, model="gemma3:4b", max_retries=5):
+def send_chat(message, parent_id=None, system_prompt=None, model="gemma3:4b", max_retries=5, keep_alive=None):
     payload = {
         "provider": "ollama",
         "model": model,
@@ -40,6 +40,8 @@ def send_chat(message, parent_id=None, system_prompt=None, model="gemma3:4b", ma
         payload["parent_id"] = parent_id
     if system_prompt is not None:
         payload["system_prompt"] = system_prompt
+    if keep_alive is not None:
+        payload["keep_alive"] = keep_alive
 
     models_to_try = MODEL_FALLBACKS.get(model, [model])
 
@@ -53,7 +55,20 @@ def send_chat(message, parent_id=None, system_prompt=None, model="gemma3:4b", ma
 
                 if resp.status_code == 200:
                     res_data = resp.json().get("data", {})
+                    load_duration = res_data.get("load_duration", 0.0)
+                    total_duration = res_data.get("total_duration", 0.0)
+                    eval_duration = res_data.get("eval_duration", 0.0)
+                    prompt_eval_duration = res_data.get("prompt_eval_duration", 0.0)
+
+                    if total_duration > 0 and load_duration > 0:
+                        net_time = round(max(0.0, total_duration - load_duration), 4)
+                    elif eval_duration > 0 or prompt_eval_duration > 0:
+                        net_time = round(eval_duration + prompt_eval_duration, 4)
+                    else:
+                        net_time = round(max(0.0, elapsed_t - load_duration), 4)
+
                     res_data["elapsed_time"] = elapsed_t
+                    res_data["net_time"] = net_time
                     return res_data
                 elif resp.status_code == 404 and current_model != models_to_try[-1]:
                     print(f"[Warning] Model '{current_model}' returned 404, attempting fallback to next model in list...")
@@ -65,6 +80,21 @@ def send_chat(message, parent_id=None, system_prompt=None, model="gemma3:4b", ma
                 print(f"[Warning] Request exception '{e}' on attempt {attempt+1}/{max_retries} for {current_model}. Retrying in {(attempt+1)*3}s...")
                 time.sleep(3 * (attempt + 1))
     raise Exception(f"Failed to send_chat for model {model} after retries.")
+
+def clear_ollama_cache(model: str, ollama_url: str = OLLAMA_URL):
+    try:
+        url = f"{ollama_url.rstrip('/')}/api/generate"
+        requests.post(url, json={"model": model, "keep_alive": 0}, timeout=10)
+    except Exception as e:
+        print(f"[Warning] Failed to clear Ollama cache for model {model}: {e}")
+
+def warmup_model(model: str, system_prompt: str):
+    print(f"[{model}] Warming up model in VRAM...")
+    try:
+        send_chat("Hi", parent_id=None, system_prompt=system_prompt, model=model, max_retries=2, keep_alive="5m")
+        print(f"[{model}] Warm-up complete.")
+    except Exception as e:
+        print(f"[{model}] Warm-up failed: {e}")
 
 def extract_answer(answer_text):
     for char in answer_text:
@@ -93,15 +123,18 @@ def main():
         print(f"Testing Model: {model}")
         print("=========================================")
 
+        clear_ollama_cache(model)
+        warmup_model(model, system_prompt)
+
         print(f"[{model}] Establishing context nodes (Passage 1 -> Passage 2)...")
         try:
-            res1 = send_chat(f"Here is Passage 1:\n\n{p1}\n\nPlease acknowledge.", system_prompt=system_prompt, model=model)
+            res1 = send_chat(f"Here is Passage 1:\n\n{p1}\n\nPlease acknowledge.", system_prompt=system_prompt, model=model, keep_alive="5m")
             node1_id = res1["currentNodeId"]
-            print(f"[{model}] Passage 1 established. Node ID: {node1_id}, Time: {res1.get('elapsed_time')}s")
+            print(f"[{model}] Passage 1 established. Node ID: {node1_id}, Time: {res1.get('net_time', res1.get('elapsed_time'))}s")
             
-            res2 = send_chat(f"Here is Passage 2:\n\n{p2}\n\nPlease acknowledge.", parent_id=node1_id, system_prompt=system_prompt, model=model)
+            res2 = send_chat(f"Here is Passage 2:\n\n{p2}\n\nPlease acknowledge.", parent_id=node1_id, system_prompt=system_prompt, model=model, keep_alive="5m")
             root_node_id = res2["currentNodeId"]
-            print(f"[{model}] Passage 2 established. Node ID: {root_node_id}, Time: {res2.get('elapsed_time')}s")
+            print(f"[{model}] Passage 2 established. Node ID: {root_node_id}, Time: {res2.get('net_time', res2.get('elapsed_time'))}s")
         except Exception as e:
             print(f"[{model}] Failed to establish context: {e}")
             continue
@@ -117,12 +150,12 @@ def main():
             expected = str(row['answer']).strip()
 
             try:
-                res = send_chat(prompt, parent_id=current_parent_id, system_prompt=system_prompt, model=model)
+                res = send_chat(prompt, parent_id=current_parent_id, system_prompt=system_prompt, model=model, keep_alive="5m")
                 answer = res.get("content", "").strip()
                 current_parent_id = res.get("currentNodeId")
                 parsed_answer = extract_answer(answer)
                 tokens = res.get("token_used") or res.get("tokens_used", 0)
-                elapsed = res.get("elapsed_time", 0.0)
+                elapsed = res.get("net_time") if res.get("net_time") is not None else res.get("elapsed_time", 0.0)
 
                 record = {
                     "question": q,
@@ -141,6 +174,9 @@ def main():
 
         # 2. Branching Test (branch=True)
         print(f"\n--- [{model}] Start Branching Test (branch=True) ---")
+        clear_ollama_cache(model)
+        warmup_model(model, system_prompt)
+
         for idx, row in qa_df.iterrows():
             q = row['question']
             choice_d = str(row['choice_D']).replace('\n\nAnswer:', '').strip()
@@ -149,11 +185,11 @@ def main():
             expected = str(row['answer']).strip()
 
             try:
-                res = send_chat(prompt, parent_id=root_node_id, system_prompt=system_prompt, model=model)
+                res = send_chat(prompt, parent_id=root_node_id, system_prompt=system_prompt, model=model, keep_alive="5m")
                 answer = res.get("content", "").strip()
                 parsed_answer = extract_answer(answer)
                 tokens = res.get("token_used") or res.get("tokens_used", 0)
-                elapsed = res.get("elapsed_time", 0.0)
+                elapsed = res.get("net_time") if res.get("net_time") is not None else res.get("elapsed_time", 0.0)
 
                 record = {
                     "question": q,
